@@ -252,6 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         itemCount: jadwalHariIni.length,
                         itemBuilder: (context, index) {
                           final data = jadwalHariIni[index];
+                          // 👈 DEFINISI VARIABEL: Mengecek apakah jadwal sudah selesai
                           final bool isCompleted = data.isDone == 1;
 
                           return Container(
@@ -277,6 +278,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     fontSize: 26,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
+                                    // 👈 PERBAIKAN: Beri efek coret jika sudah selesai
                                     decoration: isCompleted ? TextDecoration.lineThrough : TextDecoration.none,
                                   ),
                                 ),
@@ -295,17 +297,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
+                                    // 👈 TOMBOL UPDATE STATUS JADWAL
                                     ElevatedButton(
                                       style: ElevatedButton.styleFrom(
+                                        // Warna latar berubah jadi hijau jika sudah selesai
                                         backgroundColor: isCompleted ? Colors.greenAccent : Colors.white,
                                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                                       ),
-                                      onPressed: () {
+                                      onPressed: () async {
+                                        if (!isCompleted) {
+                                          // Eksekusi fungsi update ke database
+                                          await jadwalProvider.updateJadwal(data.id);
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(content: Text('Selamat! Skincare hari ini selesai! ✨')),
+                                            );
+                                          }
+                                        }
                                       },
                                       child: Text(
                                         isCompleted ? 'COMPLETED' : 'SELESAI',
-                                        style: const TextStyle(color: Color(0xFFF48FB1), fontWeight: FontWeight.bold),
+                                        style: TextStyle(
+                                          color: isCompleted ? Colors.black87 : const Color(0xFFF48FB1), 
+                                          fontWeight: FontWeight.bold
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(width: 15),
@@ -341,7 +357,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFFB2EBF2), 

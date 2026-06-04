@@ -28,7 +28,6 @@ class JadwalProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-
   Future<bool> deleteJadwal(String id) async {
     final url = Uri.parse('http://10.75.103.34/api_weeklyskin/delete.php');
     try {
@@ -46,7 +45,6 @@ class JadwalProvider with ChangeNotifier {
     }
     return false;
   }
-
   Future<bool> addJadwal(String hari, String waktu, String aktivitas, String keterangan) async {
     final url = Uri.parse('http://10.75.103.34/api_weeklyskin/create.php');
     try {
@@ -69,4 +67,20 @@ class JadwalProvider with ChangeNotifier {
     }
     return false;
   }
-} 
+  Future<bool> updateJadwal(String id) async {
+    final url = Uri.parse('http://10.75.103.34/api_weeklyskin/update.php');
+    try {
+      final response = await http.post(url, body: {'id': id});
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'success') {
+          await fetchJadwal(); 
+          return true;
+        }
+      }
+    } catch (error) {
+      if (kDebugMode) debugPrint("Error update data: $error");
+    }
+    return false;
+  }
+}
