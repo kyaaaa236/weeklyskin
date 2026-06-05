@@ -11,7 +11,7 @@ class JadwalProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
 
   Future<void> fetchJadwal() async {
-    final url = Uri.parse('http://10.75.103.34/api_weeklyskin/read.php'); 
+    final url = Uri.parse('http://192.168.1.105/api_weeklyskin/read.php'); 
     _isLoading = true;
     notifyListeners();
 
@@ -29,7 +29,7 @@ class JadwalProvider with ChangeNotifier {
     }
   }
   Future<bool> deleteJadwal(String id) async {
-    final url = Uri.parse('http://10.75.103.34/api_weeklyskin/delete.php');
+    final url = Uri.parse('http://192.168.1.105/api_weeklyskin/delete.php');
     try {
       final response = await http.post(url, body: {'id': id});
       if (response.statusCode == 200) {
@@ -46,7 +46,7 @@ class JadwalProvider with ChangeNotifier {
     return false;
   }
   Future<bool> addJadwal(String hari, String waktu, String aktivitas, String keterangan) async {
-    final url = Uri.parse('http://10.75.103.34/api_weeklyskin/create.php');
+    final url = Uri.parse('http://192.168.1.105/api_weeklyskin/create.php');
     try {
       final response = await http.post(url, body: {
         'hari': hari,
@@ -68,7 +68,7 @@ class JadwalProvider with ChangeNotifier {
     return false;
   }
   Future<bool> updateJadwal(String id) async {
-    final url = Uri.parse('http://10.75.103.34/api_weeklyskin/update.php');
+    final url = Uri.parse('http://192.168.1.105/api_weeklyskin/update.php');
     try {
       final response = await http.post(url, body: {'id': id});
       if (response.statusCode == 200) {

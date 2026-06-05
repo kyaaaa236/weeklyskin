@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "688890212733",
+    "project_id": "weeklyskin-9d92c",
+    "storage_bucket": "weeklyskin-9d92c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:688890212733:android:942ee7f7fd2aeab81ddc14",
+        "android_client_info": {
+          "package_name": "com.example.weeklyski"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXVmH3YrFml6MY3H3UrjaJNA678x3_QP8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -36,7 +36,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // FIX: Mengubah nama variabel lokal agar tidak diawali underscore sesuai aturan linter
     final List<Widget> pages = [
       _buildDashboardPage(), 
       _buildProfilePage(),   
@@ -173,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     style: ElevatedButton.styleFrom(backgroundColor: isCompleted ? Colors.greenAccent : Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
                                     onPressed: () async {
                                       if (!isCompleted) {
-                                        // FIX: Menyelaraskan argument type sesuai tipe data ID asal (String/int)
+                                        
                                         await jadwalProvider.updateJadwal(data.id);
                                       }
                                     },
@@ -218,7 +217,6 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic, color: Colors.black54),
             ),
             const SizedBox(height: 10),
-            // FIX: Mengganti Colors.black25 menjadi formula warna dengan .withValues opsional yang valid
             Divider(color: Colors.black.withValues(alpha: 0.25), thickness: 1, indent: 40, endIndent: 40),
             const SizedBox(height: 30),
             SizedBox(
@@ -235,7 +233,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   final prefs = await SharedPreferences.getInstance();
                   await prefs.clear(); 
                   
-                  // FIX: Menambahkan pengecekan mounted sebelum memanggil BuildContext async gap
                   if (mounted) {
                     Navigator.pushAndRemoveUntil(
                       context,
@@ -344,7 +341,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // FIX: Menyelaraskan argument type ID dinamis pada modal dialog konfirmasi hapus
   void _konfirmasiHapus(dynamic id, String aktivitas) {
     showDialog(
       context: context,
