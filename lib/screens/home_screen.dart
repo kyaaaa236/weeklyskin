@@ -5,6 +5,7 @@ import '../providers/jadwal_provider.dart';
 import '../notification_service.dart'; 
 import 'login_screen.dart';
 import '../models/jadwal_model.dart';
+import 'riwayat_screen.dart'; // 🎯 TAMBAHAN: Import halaman riwayat baru kamu
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -61,6 +62,19 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: const Color(0xFFE0F7FA),
         elevation: 0,
         centerTitle: true,
+        // 🎯 TAMBAHAN BARU: Menaruh Tombol Riwayat Sederhana di Pojok Kanan Atas AppBar
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history, color: Colors.black87, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const RiwayatScreen()),
+              );
+            },
+          ),
+          const SizedBox(width: 8), // Memberikan sedikit jarak di pinggir kanan
+        ],
       ),
       body: pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
