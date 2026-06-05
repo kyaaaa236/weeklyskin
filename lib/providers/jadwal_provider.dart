@@ -28,6 +28,7 @@ class JadwalProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
   Future<bool> deleteJadwal(String id) async {
     final url = Uri.parse('http://192.168.1.105/api_weeklyskin/delete.php');
     try {
@@ -45,6 +46,7 @@ class JadwalProvider with ChangeNotifier {
     }
     return false;
   }
+
   Future<bool> addJadwal(String hari, String waktu, String aktivitas, String keterangan) async {
     final url = Uri.parse('http://192.168.1.105/api_weeklyskin/create.php');
     try {
@@ -67,10 +69,18 @@ class JadwalProvider with ChangeNotifier {
     }
     return false;
   }
-  Future<bool> updateJadwal(String id) async {
+
+  Future<bool> kirimUpdateJadwal(String id, String hari, String waktu, String aktivitas, String keterangan) async {
     final url = Uri.parse('http://192.168.1.105/api_weeklyskin/update.php');
     try {
-      final response = await http.post(url, body: {'id': id});
+      final response = await http.post(url, body: {
+        'id': id,
+        'hari': hari,
+        'waktu': waktu,
+        'aktivitas': aktivitas,
+        'keterangan': keterangan,
+      });
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['status'] == 'success') {
@@ -80,6 +90,26 @@ class JadwalProvider with ChangeNotifier {
       }
     } catch (error) {
       if (kDebugMode) debugPrint("Error update data: $error");
+    }
+    return false;
+  }
+
+ Future<bool> setJadwalSelesai(String id) async {
+    final url = Uri.parse('http://192.168.1.105/api_weeklyskin/update.php');
+    try {
+      final response = await http.post(url, body: {
+        'id': id,
+      });
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'success') {
+          await fetchJadwal(); 
+          return true;
+        }
+      }
+    } catch (error) {
+      if (kDebugMode) debugPrint("Error completed data: $error");
     }
     return false;
   }

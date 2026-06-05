@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/jadwal_provider.dart';
+import '../notification_service.dart'; 
 import 'login_screen.dart';
+import '../models/jadwal_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -80,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ? FloatingActionButton(
               backgroundColor: const Color(0xFFB2EBF2),
               child: const Icon(Icons.add, color: Color(0xFFF48FB1), size: 36),
-              onPressed: () => _showFormTambah(context),
+              onPressed: () => _showFormForm(context),
             )
           : null, 
     );
@@ -124,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
+                        color: Colors.black.withValues(alpha: 0.05), 
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       )
@@ -156,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           decoration: BoxDecoration(
                             color: const Color(0xFFF48FB1),
                             borderRadius: BorderRadius.circular(25),
-                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, 4))],
+                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, 4))], // FIX
                           ),
                           child: Column(
                             children: [
@@ -172,13 +174,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                     style: ElevatedButton.styleFrom(backgroundColor: isCompleted ? Colors.greenAccent : Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
                                     onPressed: () async {
                                       if (!isCompleted) {
-                                        
-                                        await jadwalProvider.updateJadwal(data.id);
+                                        await jadwalProvider.setJadwalSelesai(data.id);
                                       }
                                     },
                                     child: Text(isCompleted ? 'COMPLETED' : 'SELESAI', style: TextStyle(color: isCompleted ? Colors.black87 : const Color(0xFFF48FB1), fontWeight: FontWeight.bold)),
                                   ),
-                                  const SizedBox(width: 15),
+                                  const SizedBox(width: 10),
+                                  IconButton(
+                                    icon: const Icon(Icons.edit, color: Colors.white, size: 24),
+                                    onPressed: () => _showFormForm(context, data),
+                                  ),
+                                  const SizedBox(width: 5),
                                   IconButton(
                                     icon: const Icon(Icons.delete_sweep, color: Colors.white, size: 28),
                                     onPressed: () => _konfirmasiHapus(data.id, data.aktivitas),
@@ -200,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center, 
           children: [
             const CircleAvatar(
               radius: 60,
@@ -217,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic, color: Colors.black54),
             ),
             const SizedBox(height: 10),
-            Divider(color: Colors.black.withValues(alpha: 0.25), thickness: 1, indent: 40, endIndent: 40),
+            Divider(color: Colors.black.withValues(alpha: 0.25), thickness: 1, indent: 40, endIndent: 40), // FIX
             const SizedBox(height: 30),
             SizedBox(
               width: double.infinity,
@@ -249,11 +255,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showFormTambah(BuildContext context) {
-    final aktivitasController = TextEditingController();
-    final keteranganController = TextEditingController();
-    String formHari = _hariTerpilihLocal;
-    TimeOfDay formWaktu = const TimeOfDay(hour: 20, minute: 0); 
+  void _showFormForm(BuildContext context, [JadwalModel? item]) {
+    final aktivitasController = TextEditingController(text: item != null ? item.aktivitas : '');
+    final keteranganController = TextEditingController(text: item != null ? item.keterangan : '');
+    String formHari = item != null ? item.hari : _hariTerpilihLocal;
+    
+    TimeOfDay formWaktu = const TimeOfDay(hour: 20, minute: 0);
+    if (item != null) {
+      final parts = item.waktu.split(':');
+      if (parts.length >= 2) {
+        formWaktu = TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+      }
+    }
 
     showModalBottomSheet(
       context: context,
@@ -270,7 +283,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Center(child: Text('Jadwal Skincare', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white))),
+                    Center(child: Text(item != null ? 'Edit Jadwal Skincare' : 'Jadwal Skincare', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white))),
                     const SizedBox(height: 20),
                     const Text('Hari', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     Container(
@@ -322,13 +335,30 @@ class _HomeScreenState extends State<HomeScreen> {
                         onPressed: () async {
                           if (aktivitasController.text.trim().isNotEmpty) {
                             final waktuString = '${formWaktu.hour.toString().padLeft(2, '0')}:${formWaktu.minute.toString().padLeft(2, '0')}:00';
-                            final sukses = await Provider.of<JadwalProvider>(ctx, listen: false).addJadwal(formHari, waktuString, aktivitasController.text.trim(), keteranganController.text.trim());
+                            
+                            bool sukses = false;
+                            final provider = Provider.of<JadwalProvider>(ctx, listen: false);
+                            
+                            if (item != null) {
+                              sukses = await provider.kirimUpdateJadwal(item.id, formHari, waktuString, aktivitasController.text.trim(), keteranganController.text.trim());
+                            } else {
+                              sukses = await provider.addJadwal(formHari, waktuString, aktivitasController.text.trim(), keteranganController.text.trim());
+                            }
+
                             if (sukses && ctx.mounted) {
                               Navigator.pop(ctx);
+                              
+                              await NotificationService.showInstantNotification(
+                                id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+                                title: 'WeeklySkin Reminder! ✨',
+                                body: item != null 
+                                  ? 'Jadwal "$_currentUsername" untuk aktivitas "${aktivitasController.text.trim()}" berhasil diubah!'
+                                  : 'Jadwal baru "$_currentUsername" untuk aktivitas "${aktivitasController.text.trim()}" berhasil dipasang!',
+                              );
                             }
                           }
                         },
-                        child: const Text('SIMPAN', style: TextStyle(color: Color(0xFFF48FB1), fontWeight: FontWeight.bold, fontSize: 16)),
+                        child: Text(item != null ? 'SIMPAN PERUBAHAN' : 'SIMPAN', style: const TextStyle(color: Color(0xFFF48FB1), fontWeight: FontWeight.bold, fontSize: 16)),
                       ),
                     ),
                   ],
