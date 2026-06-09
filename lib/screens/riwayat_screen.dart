@@ -13,9 +13,8 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
   @override
   void initState() {
     super.initState();
-    // Memperbarui list data jadwal secara otomatis dari API saat halaman dibuka
+
     Future.delayed(Duration.zero, () {
-      // 🎯 SOLUSI PROBLEM 1: Menambahkan pengecekan 'mounted' sebelum memanggil context secara asinkron
       if (mounted) {
         Provider.of<JadwalProvider>(context, listen: false).fetchJadwal();
       }
@@ -25,7 +24,7 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1E1E1E), // Mengikuti tema gelap aplikasi kamu
+      backgroundColor: const Color(0xFF1E1E1E), 
       appBar: AppBar(
         title: const Text('Daftar Riwayat Sederhana', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.cyan,
@@ -51,9 +50,6 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
             itemCount: provider.listJadwal.length,
             itemBuilder: (context, index) {
               final jadwal = provider.listJadwal[index];
-              
-              // LOGIKA WARNA: Memeriksa variabel isDone dari model kamu
-              // Jika isDone bernilai 1 berarti selesai (Hijau), jika 0 berarti belum (Putih)
               final bool statusSelesai = jadwal.isDone == 1;
 
               return Card(
@@ -73,12 +69,11 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
                       style: const TextStyle(color: Colors.white70),
                     ),
                   ),
-                  // INDIKATOR VISUAL STATUS DI SEBELAH KANAN CARD
+
                   trailing: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      // 🎯 SOLUSI PROBLEM 2: Mengganti '.withOpacity' yang usang (deprecated) menjadi 'withAlpha'
-                      color: statusSelesai ? Colors.green.withAlpha(51) : Colors.transparent, // 51 setara dengan opacity 0.2
+                      color: statusSelesai ? Colors.green.withAlpha(51) : Colors.transparent, 
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color: statusSelesai ? Colors.green : Colors.white24,
@@ -88,7 +83,7 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
                     child: Text(
                       statusSelesai ? 'Completed' : 'Selesai',
                       style: TextStyle(
-                        color: statusSelesai ? Colors.green : Colors.white, // Hijau jika bernilai 1, putih jika bernilai 0
+                        color: statusSelesai ? Colors.green : Colors.white, 
                         fontWeight: FontWeight.bold,
                       ),
                     ),

@@ -5,7 +5,7 @@ import '../providers/jadwal_provider.dart';
 import '../notification_service.dart'; 
 import 'login_screen.dart';
 import '../models/jadwal_model.dart';
-import 'riwayat_screen.dart'; // 🎯 TAMBAHAN: Import halaman riwayat baru kamu
+import 'riwayat_screen.dart'; 
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -62,7 +62,6 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: const Color(0xFFE0F7FA),
         elevation: 0,
         centerTitle: true,
-        // 🎯 TAMBAHAN BARU: Menaruh Tombol Riwayat Sederhana di Pojok Kanan Atas AppBar
         actions: [
           IconButton(
             icon: const Icon(Icons.history, color: Colors.black87, size: 28),
@@ -73,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
           ),
-          const SizedBox(width: 8), // Memberikan sedikit jarak di pinggir kanan
+          const SizedBox(width: 8), 
         ],
       ),
       body: pages[_currentIndex],
@@ -172,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           decoration: BoxDecoration(
                             color: const Color(0xFFF48FB1),
                             borderRadius: BorderRadius.circular(25),
-                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, 4))], // FIX
+                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, 4))], 
                           ),
                           child: Column(
                             children: [
@@ -237,7 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic, color: Colors.black54),
             ),
             const SizedBox(height: 10),
-            Divider(color: Colors.black.withValues(alpha: 0.25), thickness: 1, indent: 40, endIndent: 40), // FIX
+            Divider(color: Colors.black.withValues(alpha: 0.25), thickness: 1, indent: 40, endIndent: 40), 
             const SizedBox(height: 30),
             SizedBox(
               width: double.infinity,
@@ -252,7 +251,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 onPressed: () async {
                   final prefs = await SharedPreferences.getInstance();
                   await prefs.clear(); 
-                  
                   if (mounted) {
                     Navigator.pushAndRemoveUntil(
                       context,
@@ -347,28 +345,34 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFB2EBF2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
                         onPressed: () async {
+                          debugPrint("🔘 Tombol SIMPAN ditekan"); // ✅ debug
+                          debugPrint("📝 Aktivitas: '${aktivitasController.text.trim()}'"); // ✅ debug
                           if (aktivitasController.text.trim().isNotEmpty) {
+                            debugPrint("✅ Masuk ke dalam if"); // ✅ debug
                             final waktuString = '${formWaktu.hour.toString().padLeft(2, '0')}:${formWaktu.minute.toString().padLeft(2, '0')}:00';
-                            
                             bool sukses = false;
                             final provider = Provider.of<JadwalProvider>(ctx, listen: false);
-                            
+                            final String aktivitasFinal = aktivitasController.text.trim();
+                            final String keteranganFinal = keteranganController.text.trim();
+                            final parts = waktuString.split(':');
+                            final int jamInput = int.parse(parts[0]);
+                            final int menitInput = int.parse(parts[1]);
+
                             if (item != null) {
-                              sukses = await provider.kirimUpdateJadwal(item.id, formHari, waktuString, aktivitasController.text.trim(), keteranganController.text.trim());
+                              sukses = await provider.kirimUpdateJadwal(item.id, formHari, waktuString, aktivitasFinal, keteranganFinal);
                             } else {
-                              sukses = await provider.addJadwal(formHari, waktuString, aktivitasController.text.trim(), keteranganController.text.trim());
+                              sukses = await provider.addJadwal(formHari, waktuString, aktivitasFinal, keteranganFinal);
                             }
 
-                            if (sukses && ctx.mounted) {
-                              Navigator.pop(ctx);
-                              
-                              await NotificationService.showInstantNotification(
+                            if (sukses) {
+                              await NotificationService.jadwalkanPengingat(
                                 id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-                                title: 'WeeklySkin Reminder! ✨',
-                                body: item != null 
-                                  ? 'Jadwal "$_currentUsername" untuk aktivitas "${aktivitasController.text.trim()}" berhasil diubah!'
-                                  : 'Jadwal baru "$_currentUsername" untuk aktivitas "${aktivitasController.text.trim()}" berhasil dipasang!',
+                                title: "WeeklySkin Reminder! ✨",
+                                body: "Waktunya melakukan aktivitas Skincare: $aktivitasFinal ($keteranganFinal)",
+                                hour: jamInput,
+                                minute: menitInput,
                               );
+                              if (ctx.mounted) Navigator.pop(ctx);
                             }
                           }
                         },
